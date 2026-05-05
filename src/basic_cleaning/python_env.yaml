@@ -1,0 +1,16 @@
+# python_env.yaml
+python: "3.13.12"
+
+# Optional: build dependencies
+build_dependencies:
+  - pip
+  - setuptools
+  - wheel==0.37.1
+
+# Runtime dependencies
+dependencies:
+  - pip=24.3.1
+  - mlflow=3.3.2
+  - pandas==2.3.2
+  - pip:
+      - wandb==0.24.0

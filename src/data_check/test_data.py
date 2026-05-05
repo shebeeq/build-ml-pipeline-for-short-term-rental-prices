@@ -60,6 +60,18 @@ def test_similar_neigh_distrib(data: pd.DataFrame, ref_data: pd.DataFrame, kl_th
     assert scipy.stats.entropy(dist1, dist2, base=2) < kl_threshold
 
 
-########################################################
-# Implement here test_row_count and test_price_range   #
-########################################################
+def test_row_count(data):
+    """
+    Check that the dataset is not empty and has a reasonable size for NYC Airbnb data
+    """
+    # Ensure there is at least one row, or set a minimum based on your expectations
+    assert len(data) > 0
+    # Optional: assert len(data) > 1000 if you expect a certain bulk size
+
+
+def test_price_range(data, min_price, max_price):
+    """
+    Check that the price column respects the boundaries set in the cleaning step
+    """
+    # Check that no prices are outside the [min_price, max_price] range
+    assert data['price'].between(min_price, max_price).all()
