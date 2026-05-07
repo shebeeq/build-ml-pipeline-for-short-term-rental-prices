@@ -24,7 +24,9 @@ def go(args):
 
     # Filter by price boundaries
     logger.info("Cleaning data: filtering price and converting dates")
-    df = df['price'].between(args.min_price, args.max_price)
+    df = df.drop_duplicates()
+    df = df.dropna(subset=["price"])
+    df = df[df["price"].between(args.min_price, args.max_price)]
     idx = df['longitude'].between(-74.25, -73.50) & df['latitude'].between(40.5, 41.2)
     df = df[idx].copy()
 
