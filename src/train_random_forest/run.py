@@ -68,7 +68,7 @@ def go(args):
 
     logger.info("Preparing sklearn pipeline")
 
-    sk_pipe, processed_features = get_inference_pipeline(rf_config, args.max_tfidf_features)
+    sk_pipe, ord_cat, non_ord_cat, zero_imp = get_inference_pipeline(rf_config, args.max_tfidf_features)
 
     # Then fit it to the X_train, y_train data
     logger.info("Fitting")
@@ -77,6 +77,27 @@ def go(args):
     # Fit the pipeline sk_pipe by calling the .fit method on X_train and y_train
     sk_pipe.fit(X_train, y_train)
     ######################################
+
+    # Access the 'preprocessor' step from the main pipeline
+    # preprocessor = sk_pipe.named_steps['preprocessor']
+
+    #  Access the 'non_ordinal_cat' transformer inside the preprocessor
+    # Note: transformers_ [1][1] refers to the second transformer in your list
+    preprocessor = sk_pipe.named_steps['preprocessor']
+
+    # 2. Reach inside the ColumnTransformer to get the OneHotEncoder branch
+    # ColumnTransformer uses .named_transformers_
+    ohe_branch = preprocessor.named_transformers_['non_ordinal_cat']
+    
+    # 3. Reach inside that branch (sub-pipeline) to get the encoder
+    ohe_names = ohe_branch.named_steps['onehotencoder'].get_feature_names_out()
+
+    processed_features = (
+        ord_cat + 
+        list(ohe_names) + 
+        zero_imp + 
+        ["last_review", "name"]
+    )
 
     # Compute r2 and MAE
     logger.info("Scoring")
@@ -223,7 +244,7 @@ def get_inference_pipeline(rf_config, max_tfidf_features):
         remainder="drop",  # This drops the columns that we do not transform
     )
 
-    processed_features = ordinal_categorical + non_ordinal_categorical + zero_imputed + ["last_review", "name"]
+    # processed_features = ordinal_categorical + non_ordinal_categorical + zero_imputed + ["last_review", "name"]
 
     # Create random forest
     random_forest = RandomForestRegressor(**rf_config)
@@ -233,9 +254,22 @@ def get_inference_pipeline(rf_config, max_tfidf_features):
     # ColumnTransformer instance that we saved in the `preprocessor` variable, and a step called "random_forest"
     # with the random forest instance that we just saved in the `random_forest` variable.
     # HINT: Use the explicit Pipeline constructor so you can assign the names to the steps, do not use make_pipeline
-    sk_pipe = # YOUR CODE HERE
+    sk_pipe = Pipeline(
+        steps=[
+            ("preprocessor", preprocessor),
+            ("random_forest", RandomForestRegressor(**rf_config))
+        ]
+    )
 
-    return sk_pipe, processed_features
+    # 3. Define the feature names for the importance plot
+    # processed_features = (
+    #     ordinal_categorical + 
+    #     list(sk_pipe.named_steps['preprocessor'].transformers_[1][1].named_steps['onehotencoder'].get_feature_names_out()) + 
+    #     zero_imputed + 
+    #     ["last_review", "name"]
+    # )
+
+    return sk_pipe, ordinal_categorical, non_ordinal_categorical, zero_imputed
 
 
 if __name__ == "__main__":

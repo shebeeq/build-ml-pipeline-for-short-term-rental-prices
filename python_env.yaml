@@ -14,5 +14,5 @@ dependencies:
   - hydra-core=1.3.2
   - pandas=2.3.2
   - pyyaml
-  - pip:
-      - wandb==0.24.0
+  - wandb==0.24.0
+      

@@ -22,7 +22,7 @@ modeling:
   stratify_by: "neighbourhood_group"
   # Maximum number of features to consider for the TFIDF applied to the title of the
   # insertion (the column called "name")
-  max_tfidf_features: 5
+  max_tfidf_features: 30 #earlier 5 . updated after prod run to increase the number of features, which should improve the performance of the model. Note that this also increases the training time, so you might want to experiment with this value.
   # NOTE: you can put here any parameter that is accepted by the constructor of
   # RandomForestRegressor. This is a subsample, but more could be added:
   random_forest:

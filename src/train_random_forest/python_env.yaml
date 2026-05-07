@@ -15,5 +15,5 @@ dependencies:
   - matplotlib=3.10.7
   - pandas=2.3.2
   - scikit-learn=1.7.2
-  - pip:
-      - wandb==0.24.0
+  - wandb==0.24.0
+      
